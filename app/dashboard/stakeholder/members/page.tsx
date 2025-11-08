@@ -79,7 +79,7 @@ export default function RecordsPage() {
 
       if (!success) throw new Error(error)
       if (!response.ok) throw new Error("Failed to generate token")
-      return token[0].token
+      return token.token
     },
     onSuccess: (token) => {
       console.log(token)
