@@ -128,22 +128,22 @@ export const auth = betterAuth({
     //         clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
     //     }
     // }
-    // databaseHooks: {
-    //     session: {
-    //         create: {
-    //             before: async (session) => {
-    //                 const organization = await getActiveOrganization(session.userId);
+    databaseHooks: {
+        session: {
+            create: {
+                before: async (session) => {
+                    const organization = await getActiveOrganization(session.userId);
                     
-    //                 return {
-    //                     data: {
-    //                         ...session,
-    //                         activeOrganizationId: organization.id,
-    //                     },
-    //                 };
-    //             },
-    //         },
-    //     },
-    // },
+                    return {
+                        data: {
+                            ...session,
+                            activeOrganizationId: organization.id,
+                        },
+                    };
+                },
+            },
+        },
+    },
     plugins: [
         organization({
             ac,

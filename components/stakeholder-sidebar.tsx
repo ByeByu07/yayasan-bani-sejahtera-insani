@@ -17,6 +17,7 @@ import {
   User,
   File,
   LogOut,
+  UserLock,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -70,6 +71,11 @@ const data = {
       title: "Registrasi Pasien",
       url: "/dashboard/stakeholder/registrations",
       icon: User,
+    },
+    {
+      title: "Pasien",
+      url: "/dashboard/stakeholder/patients",
+      icon: UserLock,
     },
     {
       title: "Pencatatan",
