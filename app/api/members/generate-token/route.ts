@@ -42,7 +42,7 @@ export const POST = async (req: NextRequest) => {
     //     );
     // }
 
-    const token = crypto.randomUUID()
+    let token = crypto.randomUUID()
 
     const result = await db.insert(invitationToken).values({
         id: crypto.randomUUID(),
@@ -52,5 +52,9 @@ export const POST = async (req: NextRequest) => {
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
     }).returning()
 
-    return NextResponse.json({ success: true, message: "Token berhasil di generate", data: result })
+    const { token: generatedToken, ...rest } = result[0]
+
+    token = `${process.env.NEXT_PUBLIC_APP_URL}/onboarding?token=${generatedToken}`
+
+    return NextResponse.json({ success: true, message: "Token berhasil di generate", data: { ...rest, token } })
 }
