@@ -67,6 +67,11 @@ const data = {
       badge: "10",
     },
     {
+      title: "Registrasi Pasien",
+      url: "/dashboard/stakeholder/registrations",
+      icon: User,
+    },
+    {
       title: "Pencatatan",
       url: "/dashboard/stakeholder/records",
       icon: ClipboardList,
@@ -91,11 +96,6 @@ const data = {
       url: "/dashboard/stakeholder/members",
       icon: UserRound,
     },
-    // {
-    //   title: "Pekerja Aktif",
-    //   url: "/dashboard/stakeholder/workers",
-    //   icon: Users,
-    // },
     {
       title: "Log Audit",
       url: "/dashboard/stakeholder/audit-logs",
