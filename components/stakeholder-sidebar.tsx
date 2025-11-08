@@ -16,6 +16,7 @@ import {
   MessageCircleQuestion,
   User,
   File,
+  LogOut,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -103,15 +104,15 @@ const data = {
   ],
   navSecondary: [
     {
-      title: "Profile",
-      url: "/dashboard/stakeholder/profile",
-      icon: User,
+      title: "Keluar",
+      url: "/logout",
+      icon: LogOut,
     },
-    {
-      title: "Help",
-      url: "/dashboard/stakeholder/help",
-      icon: MessageCircleQuestion,
-    },
+    // {
+    //   title: "Bantuan",
+    //   url: "/dashboard/stakeholder/help",
+    //   icon: MessageCircleQuestion,
+    // },
   ],
 }
 
