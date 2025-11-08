@@ -83,36 +83,24 @@ export const invitation = pgTable("invitation", {
     expiresAt: timestamp('expiresAt', { withTimezone: true }).notNull()
 });
 
-export const invitationToken = pgTable("invitationToken", {
-    id: text('id').primaryKey(),
-    token: text('token').notNull().unique(),
-    organizationId: text('organizationId').notNull().references(() => organization.id, { onDelete: 'cascade' }),
-    role: text('role').notNull(),
-    isActive: boolean('isActive').notNull().default(true),
-    maxUsage: integer('maxUsage').notNull().default(1),
-    usedCount: integer('usedCount').notNull().default(0),
-    createdAt: timestamp('createdAt', { withTimezone: true }).defaultNow().notNull(),
-    expiresAt: timestamp('expiresAt', { withTimezone: true }).notNull()
-});
-
 // ============================================
 // CAPITAL & FOUNDERS
 // ============================================
 
-export const founderCapital = pgTable("founderCapital", {
+export const founderCapital = pgTable("founder_capital", {
     id: uuid('id').primaryKey().defaultRandom(),
     memberId: text('memberId').notNull().references(() => member.id, { onDelete: 'cascade' }),
-    initialInvestment: decimal('initialInvestment', { precision: 15, scale: 0 }).notNull().default('0'), // Rupiah
-    totalContributed: decimal('totalContributed', { precision: 15, scale: 0 }).notNull().default('0'), // Rupiah
+    initialInvestment: decimal('initialInvestment', { precision: 15, scale: 2 }).notNull().default('0'),
+    totalContributed: decimal('totalContributed', { precision: 15, scale: 2 }).notNull().default('0'),
     createdAt: timestamp('createdAt', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updatedAt', { withTimezone: true }).defaultNow().notNull()
 });
 
-export const capitalInjection = pgTable("capitalInjection", {
+export const capitalInjection = pgTable("capital_injection", {
     id: uuid('id').primaryKey().defaultRandom(),
     memberId: text('memberId').references(() => member.id, { onDelete: 'set null' }), // nullable for organization injection
     source: text('source').notNull(), // FOUNDER or ORGANIZATION
-    amount: decimal('amount', { precision: 15, scale: 0 }).notNull(), // Rupiah
+    amount: decimal('amount', { precision: 15, scale: 2 }).notNull(),
     description: text('description'),
     proofDocumentUrl: text('proofDocumentUrl'),
     injectionDate: date('injectionDate').notNull(),
@@ -121,71 +109,21 @@ export const capitalInjection = pgTable("capitalInjection", {
 });
 
 // ============================================
-// CUSTOM ROLES & PERMISSIONS (ABAC)
+// CUSTOM ROLES & PERMISSIONS (using Organization AC)
 // ============================================
 
 export const permission = pgTable("permission", {
     id: uuid('id').primaryKey().defaultRandom(),
-    resource: text('resource').notNull(), // patients, rooms, requests, bookings, inventory, documents
+    resource: text('resource').notNull(), // patients, rooms, requests, bookings, inventory
     action: text('action').notNull(), // create, read, update, delete, approve
     description: text('description')
 });
 
-export const rolePermission = pgTable("rolePermission", {
+export const rolePermission = pgTable("role_permission", {
     id: uuid('id').primaryKey().defaultRandom(),
     roleName: text('roleName').notNull(), // KETUA, BENDAHARA, SEKRETARIS, OPERASIONAL, PENGADAAN, NURSE
     permissionId: uuid('permissionId').notNull().references(() => permission.id, { onDelete: 'cascade' }),
-    // Approval levels based on request type
-    // For TRANSACTION: 1=Bendahara, 2=Ketua
-    // For DOCUMENT: 1=Sekretaris, 2=Ketua
-    approvalLevel: integer('approvalLevel'), // NULL=no approval needed
-    requestType: text('requestType') // TRANSACTION, DOCUMENT, NULL=all types
-});
-
-// ============================================
-// DOCUMENTS MANAGEMENT
-// ============================================
-
-export const documentCategory = pgTable("documentCategory", {
-    id: uuid('id').primaryKey().defaultRandom(),
-    name: text('name').notNull().unique(), // CONTRACT, POLICY, INVOICE, MEDICAL_RECORD, LEGAL
-    code: text('code').notNull().unique(), // DOC-CAT-XXX
-    description: text('description'),
-    isActive: boolean('isActive').notNull().default(true),
-    createdAt: timestamp('createdAt', { withTimezone: true }).defaultNow().notNull()
-});
-
-export const document = pgTable("document", {
-    id: uuid('id').primaryKey().defaultRandom(),
-    documentCode: text('documentCode').notNull().unique(), // AUTO: DOC-YYYYMMDD-XXX
-    categoryId: uuid('categoryId').notNull().references(() => documentCategory.id, { onDelete: 'restrict' }),
-    title: text('title').notNull(),
-    description: text('description'),
-    fileUrl: text('fileUrl').notNull(),
-    fileName: text('fileName').notNull(),
-    fileSize: integer('fileSize').notNull(), // in bytes
-    mimeType: text('mimeType').notNull(),
-    version: integer('version').notNull().default(1),
-    tags: json('tags').$type<string[]>(), // Array of tags for searching
-    uploadedByUserId: text('uploadedByUserId').notNull().references(() => user.id),
-    status: text('status').notNull().default('ACTIVE'), // ACTIVE, ARCHIVED, DELETED
-    // Linking to entities
-    relatedEntityType: text('relatedEntityType'), // PATIENT, BOOKING, REQUEST, TRANSACTION, NULL
-    relatedEntityId: uuid('relatedEntityId'),
-    createdAt: timestamp('createdAt', { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp('updatedAt', { withTimezone: true }).defaultNow().notNull()
-});
-
-// Version history for documents
-export const documentVersion = pgTable("documentVersion", {
-    id: uuid('id').primaryKey().defaultRandom(),
-    documentId: uuid('documentId').notNull().references(() => document.id, { onDelete: 'cascade' }),
-    versionNumber: integer('versionNumber').notNull(),
-    fileUrl: text('fileUrl').notNull(),
-    fileSize: integer('fileSize').notNull(),
-    uploadedByUserId: text('uploadedByUserId').notNull().references(() => user.id),
-    changeNotes: text('changeNotes'),
-    createdAt: timestamp('createdAt', { withTimezone: true }).defaultNow().notNull()
+    approvalLevel: integer('approvalLevel') // 1=Bendahara, 2=Ketua, NULL=no approval
 });
 
 // ============================================
@@ -197,7 +135,7 @@ export const room = pgTable("room", {
     roomNumber: text('roomNumber').notNull().unique(),
     roomType: text('roomType').notNull(), // VIP, STANDARD, ICU
     capacity: integer('capacity').notNull().default(1),
-    baseRate: decimal('baseRate', { precision: 15, scale: 0 }).notNull(), // Rupiah per day
+    baseRate: decimal('baseRate', { precision: 15, scale: 2 }).notNull(),
     status: text('status').notNull().default('AVAILABLE'), // AVAILABLE, OCCUPIED, MAINTENANCE
     description: text('description'),
     isActive: boolean('isActive').notNull().default(true),
@@ -208,13 +146,13 @@ export const room = pgTable("room", {
 export const facility = pgTable("facility", {
     id: uuid('id').primaryKey().defaultRandom(),
     name: text('name').notNull().unique(),
-    additionalPrice: decimal('additionalPrice', { precision: 15, scale: 0 }).notNull().default('0'), // Rupiah
+    additionalPrice: decimal('additionalPrice', { precision: 15, scale: 2 }).notNull().default('0'),
     description: text('description'),
     isActive: boolean('isActive').notNull().default(true),
     createdAt: timestamp('createdAt', { withTimezone: true }).defaultNow().notNull()
 });
 
-export const roomFacility = pgTable("roomFacility", {
+export const roomFacility = pgTable("room_facility", {
     id: uuid('id').primaryKey().defaultRandom(),
     roomId: uuid('roomId').notNull().references(() => room.id, { onDelete: 'cascade' }),
     facilityId: uuid('facilityId').notNull().references(() => facility.id, { onDelete: 'cascade' }),
@@ -249,10 +187,10 @@ export const booking = pgTable("booking", {
     checkIn: timestamp('checkIn', { withTimezone: true }).notNull(),
     checkOut: timestamp('checkOut', { withTimezone: true }),
     totalDays: integer('totalDays').notNull().default(0),
-    roomCharge: decimal('roomCharge', { precision: 15, scale: 0 }).notNull(), // Rupiah
-    facilitiesCharge: decimal('facilitiesCharge', { precision: 15, scale: 0 }).notNull().default('0'), // Rupiah
-    totalCharge: decimal('totalCharge', { precision: 15, scale: 0 }).notNull(), // Rupiah
-    paidAmount: decimal('paidAmount', { precision: 15, scale: 0 }).notNull().default('0'), // Rupiah
+    roomCharge: decimal('roomCharge', { precision: 15, scale: 2 }).notNull(),
+    facilitiesCharge: decimal('facilitiesCharge', { precision: 15, scale: 2 }).notNull().default('0'),
+    totalCharge: decimal('totalCharge', { precision: 15, scale: 2 }).notNull(),
+    paidAmount: decimal('paidAmount', { precision: 15, scale: 2 }).notNull().default('0'),
     paymentStatus: text('paymentStatus').notNull().default('UNPAID'), // PAID, PARTIAL, UNPAID
     bookingStatus: text('bookingStatus').notNull().default('ACTIVE'), // ACTIVE, COMPLETED, CANCELLED
     notes: text('notes'),
@@ -260,83 +198,54 @@ export const booking = pgTable("booking", {
     updatedAt: timestamp('updatedAt', { withTimezone: true }).defaultNow().notNull()
 });
 
-export const bookingFacility = pgTable("bookingFacility", {
+export const bookingFacility = pgTable("booking_facility", {
     id: uuid('id').primaryKey().defaultRandom(),
     bookingId: uuid('bookingId').notNull().references(() => booking.id, { onDelete: 'cascade' }),
     facilityId: uuid('facilityId').notNull().references(() => facility.id, { onDelete: 'restrict' }),
-    priceAtBooking: decimal('priceAtBooking', { precision: 15, scale: 0 }).notNull() // Rupiah
+    priceAtBooking: decimal('priceAtBooking', { precision: 15, scale: 2 }).notNull()
 });
 
-// Payment with Gateway Support (Midtrans/Xendit)
-export const bookingPayment = pgTable("bookingPayment", {
+export const bookingPayment = pgTable("booking_payment", {
     id: uuid('id').primaryKey().defaultRandom(),
     bookingId: uuid('bookingId').notNull().references(() => booking.id, { onDelete: 'cascade' }),
-    amount: decimal('amount', { precision: 15, scale: 0 }).notNull(), // Rupiah
-    paymentMethod: text('paymentMethod').notNull(), // CASH, TRANSFER, CARD, QRIS, E_WALLET
-    paymentGateway: text('paymentGateway'), // MIDTRANS, XENDIT, NULL (for cash)
-    gatewayOrderId: text('gatewayOrderId'), // External payment ID
-    gatewayTransactionId: text('gatewayTransactionId'), // Gateway transaction reference
-    gatewayStatus: text('gatewayStatus'), // pending, settlement, expire, cancel, deny
-    gatewayResponse: json('gatewayResponse'), // Full gateway response
+    amount: decimal('amount', { precision: 15, scale: 2 }).notNull(),
+    paymentMethod: text('paymentMethod').notNull(), // CASH, TRANSFER, CARD
     proofDocumentUrl: text('proofDocumentUrl'),
     receivedByUserId: text('receivedByUserId').notNull().references(() => user.id),
     paymentDate: timestamp('paymentDate', { withTimezone: true }).notNull(),
-    settledAt: timestamp('settledAt', { withTimezone: true }), // When payment confirmed
-    notes: text('notes'),
-    createdAt: timestamp('createdAt', { withTimezone: true }).defaultNow().notNull()
+    notes: text('notes')
 });
 
 // ============================================
-// STAFF SHIFTS & CASH RECONCILIATION (Multi-Worker Support)
+// STAFF SHIFTS & CASH RECONCILIATION
 // ============================================
 
 export const shift = pgTable("shift", {
     id: uuid('id').primaryKey().defaultRandom(),
-    shiftCode: text('shiftCode').notNull().unique(), // AUTO: SHIFT-YYYYMMDD-XXX
+    userId: text('userId').notNull().references(() => user.id, { onDelete: 'restrict' }), // nurse
     shiftDate: date('shiftDate').notNull(),
     shiftType: text('shiftType').notNull(), // MORNING, AFTERNOON, NIGHT
     startTime: timestamp('startTime', { withTimezone: true }).notNull(),
-    endTime: timestamp('endTime', { withTimezone: true }),
-
-    // PHYSICAL CASH TRACKING (shared cash box)
-    cashBeginning: decimal('cashBeginning', { precision: 15, scale: 0 }).notNull(), // Counted at shift start
-    cashReceived: decimal('cashReceived', { precision: 15, scale: 0 }).notNull().default('0'), // Cash payments received
-    cashExpenses: decimal('cashExpenses', { precision: 15, scale: 0 }).notNull().default('0'), // Cash spent
-    cashExpected: decimal('cashExpected', { precision: 15, scale: 0 }).notNull().default('0'), // Calculated: beginning + received - expenses
-    cashActual: decimal('cashActual', { precision: 15, scale: 0 }), // Counted at shift end (nullable until closed)
-    cashVariance: decimal('cashVariance', { precision: 15, scale: 0 }).default('0'), // actual - expected (all workers responsible)
-
-    status: text('status').notNull().default('OPEN'), // OPEN, CLOSED, VERIFIED
+    endTime: timestamp('endTime', { withTimezone: true }).notNull(),
+    cashBeginning: decimal('cashBeginning', { precision: 15, scale: 2 }).notNull().default('0'),
+    cashReceived: decimal('cashReceived', { precision: 15, scale: 2 }).notNull().default('0'),
+    cashExpenses: decimal('cashExpenses', { precision: 15, scale: 2 }).notNull().default('0'),
+    cashEnding: decimal('cashEnding', { precision: 15, scale: 2 }).notNull().default('0'), // calculated
+    cashActual: decimal('cashActual', { precision: 15, scale: 2 }).notNull().default('0'), // physical count
+    cashVariance: decimal('cashVariance', { precision: 15, scale: 2 }).notNull().default('0'), // actual - ending
+    status: text('status').notNull().default('OPEN'), // OPEN, SUBMITTED, VERIFIED
     notes: text('notes'),
-    varianceNotes: text('varianceNotes'), // Explanation for variance if any
-
-    openedByUserId: text('openedByUserId').notNull().references(() => user.id), // Who opened the shift
-    closedByUserId: text('closedByUserId').references(() => user.id), // Who closed the shift
-    verifiedByUserId: text('verifiedByUserId').references(() => user.id), // Bendahara verification
+    verifiedByUserId: text('verifiedByUserId').references(() => user.id), // bendahara
     verifiedAt: timestamp('verifiedAt', { withTimezone: true }),
-
     createdAt: timestamp('createdAt', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updatedAt', { withTimezone: true }).defaultNow().notNull()
 });
 
-// Worker attendance/check-in for shift (shared responsibility)
-export const shiftWorker = pgTable("shiftWorker", {
-    id: uuid('id').primaryKey().defaultRandom(),
-    shiftId: uuid('shiftId').notNull().references(() => shift.id, { onDelete: 'cascade' }),
-    userId: text('userId').notNull().references(() => user.id, { onDelete: 'restrict' }),
-    role: text('role').notNull(), // NURSE, SUPERVISOR, ADMIN, etc.
-    checkInTime: timestamp('checkInTime', { withTimezone: true }).notNull(), // Required attendance
-    checkOutTime: timestamp('checkOutTime', { withTimezone: true }),
-    status: text('status').notNull().default('PRESENT'), // PRESENT, ABSENT, LATE
-    notes: text('notes'),
-    createdAt: timestamp('createdAt', { withTimezone: true }).defaultNow().notNull()
-});
-
 // ============================================
-// REQUESTS & APPROVALS (Enhanced for Document Support)
+// REQUESTS & APPROVALS
 // ============================================
 
-export const transactionCategory = pgTable("transactionCategory", {
+export const transactionCategory = pgTable("transaction_category", {
     id: uuid('id').primaryKey().defaultRandom(),
     name: text('name').notNull().unique(), // FOOD, MEDICAL_SUPPLIES, SALARIES, OPERATIONAL, UTILITIES
     type: text('type').notNull(), // REVENUE, EXPENSE
@@ -348,18 +257,10 @@ export const transactionCategory = pgTable("transactionCategory", {
 export const request = pgTable("request", {
     id: uuid('id').primaryKey().defaultRandom(),
     requestCode: text('requestCode').notNull().unique(), // AUTO: REQ-YYYYMMDD-XXX
-    requestType: text('requestType').notNull(), // TRANSACTION, DOCUMENT, INVENTORY, PROCUREMENT
+    requestType: text('requestType').notNull(), // INVENTORY, EXPENSE, PROCUREMENT
     requesterUserId: text('requesterUserId').notNull().references(() => user.id),
-
-    // For TRANSACTION requests
-    transactionSubtype: text('transactionSubtype'), // EXPENSE, REVENUE, CAPITAL_INJECTION (only for TRANSACTION type)
     expenseCategoryId: uuid('expenseCategoryId').references(() => transactionCategory.id, { onDelete: 'restrict' }),
-    amount: decimal('amount', { precision: 15, scale: 0 }).default('0'), // Rupiah, nullable for non-transaction requests
-
-    // For DOCUMENT requests
-    documentId: uuid('documentId').references(() => document.id, { onDelete: 'cascade' }),
-    documentAction: text('documentAction'), // CREATE, UPDATE, DELETE
-
+    amount: decimal('amount', { precision: 15, scale: 2 }).notNull(),
     description: text('description'),
     justification: text('justification'),
     status: text('status').notNull().default('PENDING'), // PENDING, APPROVED, REJECTED, CANCELLED, TIMEOUT
@@ -369,26 +270,23 @@ export const request = pgTable("request", {
     updatedAt: timestamp('updatedAt', { withTimezone: true }).defaultNow().notNull()
 });
 
-export const requestItem = pgTable("requestItem", {
+export const requestItem = pgTable("request_item", {
     id: uuid('id').primaryKey().defaultRandom(),
     requestId: uuid('requestId').notNull().references(() => request.id, { onDelete: 'cascade' }),
     inventoryItemId: uuid('inventoryItemId').references(() => inventoryItem.id, { onDelete: 'set null' }),
     itemName: text('itemName').notNull(),
     quantity: integer('quantity').notNull(),
     unit: text('unit').notNull(),
-    unitPrice: decimal('unitPrice', { precision: 15, scale: 0 }).notNull(), // Rupiah
-    totalPrice: decimal('totalPrice', { precision: 15, scale: 0 }).notNull(), // Rupiah
+    unitPrice: decimal('unitPrice', { precision: 15, scale: 2 }).notNull(),
+    totalPrice: decimal('totalPrice', { precision: 15, scale: 2 }).notNull(),
     specifications: text('specifications')
 });
 
-// Enhanced approval with request-type specific flows
 export const approval = pgTable("approval", {
     id: uuid('id').primaryKey().defaultRandom(),
     requestId: uuid('requestId').notNull().references(() => request.id, { onDelete: 'cascade' }),
-    approvalLevel: integer('approvalLevel').notNull(),
-    // For TRANSACTION: 1=Bendahara, 2=Ketua
-    // For DOCUMENT: 1=Sekretaris, 2=Ketua
-    roleName: text('roleName').notNull(), // BENDAHARA, SEKRETARIS, KETUA
+    approvalLevel: integer('approvalLevel').notNull(), // 1=Bendahara, 2=Ketua (sequential)
+    roleName: text('roleName').notNull(), // BENDAHARA or KETUA
     approverUserId: text('approverUserId').references(() => user.id), // nullable until approved
     status: text('status').notNull().default('PENDING'), // PENDING, APPROVED, REJECTED, TIMEOUT
     comments: text('comments'),
@@ -401,7 +299,7 @@ export const approval = pgTable("approval", {
 // INVENTORY
 // ============================================
 
-export const inventoryItem = pgTable("inventoryItem", {
+export const inventoryItem = pgTable("inventory_item", {
     id: uuid('id').primaryKey().defaultRandom(),
     itemCode: text('itemCode').notNull().unique(), // AUTO: INV-XXX
     name: text('name').notNull(),
@@ -409,18 +307,18 @@ export const inventoryItem = pgTable("inventoryItem", {
     unit: text('unit').notNull(), // pcs, box, kg, liter
     quantityOnHand: integer('quantityOnHand').notNull().default(0),
     minimumStock: integer('minimumStock').notNull().default(0),
-    averageUnitCost: decimal('averageUnitCost', { precision: 15, scale: 0 }).notNull().default('0'), // Rupiah
+    averageUnitCost: decimal('averageUnitCost', { precision: 15, scale: 2 }).notNull().default('0'),
     isActive: boolean('isActive').notNull().default(true),
     createdAt: timestamp('createdAt', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updatedAt', { withTimezone: true }).defaultNow().notNull()
 });
 
-export const inventoryMovement = pgTable("inventoryMovement", {
+export const inventoryMovement = pgTable("inventory_movement", {
     id: uuid('id').primaryKey().defaultRandom(),
     inventoryItemId: uuid('inventoryItemId').notNull().references(() => inventoryItem.id, { onDelete: 'restrict' }),
     movementType: text('movementType').notNull(), // IN, OUT, ADJUSTMENT
     quantity: integer('quantity').notNull(), // positive for IN, negative for OUT
-    unitCost: decimal('unitCost', { precision: 15, scale: 0 }), // Rupiah, for IN movements
+    unitCost: decimal('unitCost', { precision: 15, scale: 2 }), // for IN movements
     referenceType: text('referenceType'), // REQUEST, PURCHASE, USAGE, ADJUSTMENT
     referenceId: uuid('referenceId'),
     performedByUserId: text('performedByUserId').notNull().references(() => user.id),
@@ -438,7 +336,7 @@ export const transaction = pgTable("transaction", {
     transactionCode: text('transactionCode').notNull().unique(), // AUTO: TRX-YYYYMMDD-XXX
     transactionType: text('transactionType').notNull(), // CAPITAL_INJECTION, REVENUE, EXPENSE
     categoryId: uuid('categoryId').references(() => transactionCategory.id, { onDelete: 'restrict' }), // nullable for capital
-    amount: decimal('amount', { precision: 15, scale: 0 }).notNull(), // Rupiah
+    amount: decimal('amount', { precision: 15, scale: 2 }).notNull(),
     transactionDate: date('transactionDate').notNull(),
     referenceType: text('referenceType'), // BOOKING, REQUEST, CAPITAL_INJECTION, SHIFT
     referenceId: uuid('referenceId'),
@@ -452,12 +350,12 @@ export const transaction = pgTable("transaction", {
 // AUDIT LOGS
 // ============================================
 
-export const auditLog = pgTable("auditLog", {
+export const auditLog = pgTable("audit_log", {
     id: uuid('id').primaryKey().defaultRandom(),
     userId: text('userId').notNull().references(() => user.id, { onDelete: 'restrict' }),
     organizationId: text('organizationId').references(() => organization.id, { onDelete: 'set null' }),
     action: text('action').notNull(), // CREATE, UPDATE, DELETE, APPROVE, REJECT, LOGIN, LOGOUT, etc
-    resourceType: text('resourceType').notNull(), // PATIENT, BOOKING, REQUEST, TRANSACTION, USER, DOCUMENT, etc
+    resourceType: text('resourceType').notNull(), // PATIENT, BOOKING, REQUEST, TRANSACTION, USER, etc
     resourceId: text('resourceId').notNull(),
     ipAddress: text('ipAddress'),
     userAgent: text('userAgent'),

@@ -1,12 +1,11 @@
-"use client"
-
-import * as React from "react"
-import { type Icon } from "@tabler/icons-react"
+import React from "react"
+import { type LucideIcon } from "lucide-react"
 
 import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
@@ -18,7 +17,8 @@ export function NavSecondary({
   items: {
     title: string
     url: string
-    icon: Icon
+    icon: LucideIcon
+    badge?: React.ReactNode
   }[]
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
   return (
@@ -33,6 +33,7 @@ export function NavSecondary({
                   <span>{item.title}</span>
                 </a>
               </SidebarMenuButton>
+              {item.badge && <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>}
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
