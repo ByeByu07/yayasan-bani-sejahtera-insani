@@ -85,9 +85,9 @@ export function ExpensePieChart() {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Expense Analysis</CardTitle>
+        <CardTitle>Analisis Pengeluaran</CardTitle>
         <CardDescription>
-          View expenses by category or month
+          Lihat pengeluaran berdasarkan kategori atau bulan
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -105,11 +105,11 @@ export function ExpensePieChart() {
               }}
             >
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select grouping" />
+                <SelectValue placeholder="Pilih pengelompokan" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="category">By Category</SelectItem>
-                <SelectItem value="month">By Month</SelectItem>
+                <SelectItem value="category">Kategori</SelectItem>
+                <SelectItem value="month">Bulan</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -123,10 +123,10 @@ export function ExpensePieChart() {
                 onValueChange={(value) => setSelectedMonth(value === "all" ? null : value)}
               >
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="All months" />
+                  <SelectValue placeholder="Pilih bulan" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Months</SelectItem>
+                  <SelectItem value="all">Semua Bulan</SelectItem>
                   {data.filters.availableMonths.map((month) => (
                     <SelectItem key={month} value={month}>
                       {new Date(month + '-01').toLocaleDateString('id-ID', {
@@ -149,10 +149,10 @@ export function ExpensePieChart() {
                 onValueChange={(value) => setSelectedCategory(value === "all" ? null : value)}
               >
                 <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="All categories" />
+                  <SelectValue placeholder="Pilih kategori" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
+                  <SelectItem value="all">Semua Kategori</SelectItem>
                   {data.filters.availableCategories.map((category) => (
                     <SelectItem key={category} value={category}>
                       {category.replace(/_/g, ' ')}
@@ -204,7 +204,7 @@ export function ExpensePieChart() {
 
             {/* Total */}
             <div className="mt-6 text-center">
-              <p className="text-sm text-muted-foreground">Total</p>
+              <p className="text-sm text-muted-foreground">Jumlah Total</p>
               <p className="text-2xl font-bold">{formatCurrency(total)}</p>
             </div>
           </>
@@ -212,7 +212,7 @@ export function ExpensePieChart() {
 
         {data && data.data.length === 0 && (
           <div className="flex items-center justify-center h-[400px]">
-            <p className="text-muted-foreground">No data available</p>
+            <p className="text-muted-foreground">Tidak ada data yang tersedia</p>
           </div>
         )}
       </CardContent>

@@ -18,7 +18,7 @@ export default function StakeholderDashboardPage() {
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
         <p className="text-muted-foreground">
-          Welcome to the stakeholder dashboard
+          Selamat datang di dashboard stakeholder
         </p>
       </div>
 

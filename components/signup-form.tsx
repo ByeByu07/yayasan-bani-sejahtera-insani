@@ -26,7 +26,7 @@ export function SignupForm({
 
   const handleSignup = () => {
     if (password !== confirmPassword) {
-      toast("Passwords do not match", {
+      toast("Kata sandi tidak cocok", {
         duration: 2000,
         position: "top-center"
       })
@@ -43,7 +43,7 @@ export function SignupForm({
         
       },
       onSuccess: () => {
-        toast("Signup successful", {
+        toast("Pendaftaran berhasil", {
           duration: 1000,
           position: "top-center"
         })
@@ -73,9 +73,9 @@ export function SignupForm({
         <form onSubmit={(e) => e.preventDefault()} className="p-6 md:p-8">
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
-                <h1 className="text-2xl font-bold">Sign up</h1>
+                <h1 className="text-2xl font-bold">Daftar</h1>
                 <p className="text-muted-foreground text-balance">
-                  Sign up to your {process.env.NEXT_PUBLIC_APP_NAME} account
+                  Daftar ke akun {process.env.NEXT_PUBLIC_APP_NAME} Anda
                 </p>
               </div>
               <div className="grid gap-3">
@@ -90,7 +90,7 @@ export function SignupForm({
                 />
               </div>
               <div className="grid gap-3">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">Nama</Label>
                 <Input
                   id="name"
                   type="text"
@@ -102,23 +102,23 @@ export function SignupForm({
               </div>
               <div className="grid gap-3">
                 <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">Kata Sandi</Label>
                 </div>
                 <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)}/>
               </div>
               <div className="grid gap-3">
                 <div className="flex items-center">
-                  <Label htmlFor="confirm-password">Confirm Password</Label>
+                  <Label htmlFor="confirm-password">Konfirmasi Kata Sandi</Label>
                 </div>
                 <Input id="confirm-password" type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}/>
               </div>
               <Button onClick={handleSignup} type="submit" className="w-full">
-                Sign up
+                Daftar
               </Button>
               <div className="text-center text-sm">
-                Already have an account?{" "}
+                Sudah punya akun?{" "}
                 <Link href="/signin" className="underline underline-offset-4">
-                  Sign in
+                  Masuk
                 </Link>
               </div>
             </div>
@@ -127,17 +127,17 @@ export function SignupForm({
             <Image
               width={500}
               height={500}
-              src="/images/web/dummy.png"
-              alt="Image"
+              src="/images/web/dummy-2.webp"
+              alt="Gambar"
               className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
             />
           </div>
         </CardContent>
       </Card>
-      <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        By clicking continue, you agree to our <Link href="#">Terms of Service</Link>{" "}
-        and <Link href="#">Privacy Policy</Link>.
-      </div>
+      {/* <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
+        Dengan mengklik lanjutkan, Anda menyetujui <Link href="#">Ketentuan Layanan</Link>{" "}
+        dan <Link href="#">Kebijakan Privasi</Link> kami.
+      </div> */}
     </div>
   )
 }
