@@ -42,6 +42,7 @@
 		"@tanstack/react-form": "^1.23.7",
 		"@tanstack/react-query": "^5.89.0",
 		"@tanstack/react-table": "^8.21.3",
+		"@tanstack/zod-form-adapter": "^0.42.1",
 		"better-auth": "^1.3.27",
 		"better-sqlite3": "^12.2.0",
 		"class-variance-authority": "^0.7.1",

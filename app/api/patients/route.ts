@@ -88,10 +88,11 @@ export async function POST(req: NextRequest) {
 
     // Get count of patients created today
     const todayStart = new Date(today.setHours(0, 0, 0, 0));
+    const todayEnd = new Date(today.setHours(23, 59, 59, 999));
     const existingToday = await db
       .select({ count: sql<number>`count(*)::int` })
       .from(patient)
-      .where(sql`DATE(${patient.createdAt}) = DATE(${todayStart})`);
+      .where(sql`${patient.createdAt} >= ${todayStart.toISOString()} AND ${patient.createdAt} < ${todayEnd.toISOString()}`);
 
     const sequence = (existingToday[0]?.count || 0) + 1;
     const patientCode = `PAT-${dateStr}-${String(sequence).padStart(3, '0')}`;

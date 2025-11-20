@@ -17,19 +17,17 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { AlertCircle, Users, Search, User } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { useRouter } from "next/navigation"
 
 export default function PatientsPage() {
   const { setBreadcrumbs } = useBreadcrumb()
   const [searchQuery, setSearchQuery] = useState<string>("")
   const [debouncedSearch, setDebouncedSearch] = useState<string>("")
-  const router = useRouter()
 
   useEffect(() => {
     setBreadcrumbs([
       { label: "Dashboard", href: "/dashboard/stakeholder" },
-      { label: "Pasien" },
+      { label: "Pasien", href: "/dashboard/stakeholder/patients" },
+      { label: "Semua Pasien" },
     ])
   }, [setBreadcrumbs])
 
@@ -98,33 +96,6 @@ export default function PatientsPage() {
           </p>
         </div>
       </div>
-
-      {/* Summary Card */}
-      {!isLoading && patients && (
-        <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pasien Aktif</CardTitle>
-              <Users className="h-4 w-4 text-primary" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{patients.length}</div>
-              <p className="text-xs text-muted-foreground">Pasien aktif</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Pasien</CardTitle>
-              {/* <Users className="h-4 w-4 text-primary" /> */}
-              <Button variant="default" onClick={() => router.push("/dashboard/stakeholder/patients/all")}>Lihat Pasien Terdaftar</Button>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{patients.length}</div>
-              <p className="text-xs text-muted-foreground">Pasien terdaftar</p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
 
       {/* Search Filter */}
       <Card>
